@@ -1,19 +1,16 @@
-name: Backend CI/CD
+name: Deploy to Cloud Run
 
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+  group: backend-deploy
+  cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Deploy to Cloud Run
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'pull_request')
+    name: Deploy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

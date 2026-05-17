@@ -20,44 +20,55 @@ func initDatabase() {
 		log.Println("Warning: .env file not found, using system environment variables")
 	}
 
-	// Get database configuration from environment
-	dbHost := os.Getenv("DB_HOST")
-	dbPort := os.Getenv("DB_PORT")
-	dbUser := os.Getenv("DB_USER")
-	dbPassword := os.Getenv("DB_PASSWORD")
-	dbName := os.Getenv("DB_NAME")
-	dbSSLMode := os.Getenv("DB_SSLMODE")
-	if dbSSLMode == "" {
-		dbSSLMode = "disable"
-	}
-
-	// Build connection string
+	// First, check if a full DATABASE_URL is provided (Neon, Supabase, Cloud Run standard)
 	var dbURL string
-	if strings.HasPrefix(dbHost, "/") {
-		// Cloud SQL Unix socket connection (host points to /cloudsql/...)
-		builder := strings.Builder{}
-		builder.WriteString(fmt.Sprintf("host=%s dbname=%s sslmode=%s", dbHost, dbName, dbSSLMode))
-		if dbUser != "" {
-			builder.WriteString(fmt.Sprintf(" user=%s", dbUser))
+	if envURL := os.Getenv("DATABASE_URL"); envURL != "" {
+		dbURL = envURL
+		// Hide credentials when logging
+		safeURL := dbURL
+		if strings.Contains(dbURL, "@") {
+			parts := strings.Split(dbURL, "@")
+			safeURL = "postgres://***:***@" + parts[1]
 		}
-		if dbPassword != "" {
-			builder.WriteString(fmt.Sprintf(" password=%s", dbPassword))
-		}
-		if dbPort != "" {
-			builder.WriteString(fmt.Sprintf(" port=%s", dbPort))
-		}
-		dbURL = builder.String()
-		fmt.Printf("🔌 Using Cloud SQL socket connection: host=%s\n", dbHost)
-	} else if dbPassword != "" {
-		// TCP connection with password
-		dbURL = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
-			dbUser, dbPassword, dbHost, dbPort, dbName, dbSSLMode)
-		fmt.Printf("🔌 Using TCP connection: postgres://%s:***@%s:%s/%s\n", dbUser, dbHost, dbPort, dbName)
+		fmt.Printf("🔌 Using DATABASE_URL connection: %s\n", safeURL)
 	} else {
-		// TCP connection without password (e.g., local dev)
-		dbURL = fmt.Sprintf("postgres://%s@%s:%s/%s?sslmode=%s",
-			dbUser, dbHost, dbPort, dbName, dbSSLMode)
-		fmt.Printf("🔌 Using TCP connection without password: postgres://%s@%s:%s/%s\n", dbUser, dbHost, dbPort, dbName)
+		// Fallback to individual variables if DATABASE_URL is not set
+		dbHost := os.Getenv("DB_HOST")
+		dbPort := os.Getenv("DB_PORT")
+		dbUser := os.Getenv("DB_USER")
+		dbPassword := os.Getenv("DB_PASSWORD")
+		dbName := os.Getenv("DB_NAME")
+		dbSSLMode := os.Getenv("DB_SSLMODE")
+		if dbSSLMode == "" {
+			dbSSLMode = "disable"
+		}
+
+		if strings.HasPrefix(dbHost, "/") {
+			// Cloud SQL Unix socket connection (host points to /cloudsql/...)
+			builder := strings.Builder{}
+			builder.WriteString(fmt.Sprintf("host=%s dbname=%s sslmode=%s", dbHost, dbName, dbSSLMode))
+			if dbUser != "" {
+				builder.WriteString(fmt.Sprintf(" user=%s", dbUser))
+			}
+			if dbPassword != "" {
+				builder.WriteString(fmt.Sprintf(" password=%s", dbPassword))
+			}
+			if dbPort != "" {
+				builder.WriteString(fmt.Sprintf(" port=%s", dbPort))
+			}
+			dbURL = builder.String()
+			fmt.Printf("🔌 Using Cloud SQL socket connection: host=%s\n", dbHost)
+		} else if dbPassword != "" {
+			// TCP connection with password
+			dbURL = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
+				dbUser, dbPassword, dbHost, dbPort, dbName, dbSSLMode)
+			fmt.Printf("🔌 Using TCP connection: postgres://%s:***@%s:%s/%s\n", dbUser, dbHost, dbPort, dbName)
+		} else {
+			// TCP connection without password (e.g., local dev)
+			dbURL = fmt.Sprintf("postgres://%s@%s:%s/%s?sslmode=%s",
+				dbUser, dbHost, dbPort, dbName, dbSSLMode)
+			fmt.Printf("🔌 Using TCP connection without password: postgres://%s@%s:%s/%s\n", dbUser, dbHost, dbPort, dbName)
+		}
 	}
 
 	// Open database connection
