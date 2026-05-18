@@ -3,8 +3,12 @@ module github.com/Hacklabs-app/merch-backend
 go 1.24.6
 
 require (
+	github.com/caarlos0/env/v11 v11.4.1
 	github.com/gofiber/fiber/v2 v2.52.13
+	github.com/golang-migrate/migrate/v4 v4.19.1
 	github.com/google/uuid v1.6.0
+	github.com/joho/godotenv v1.5.1
+	github.com/lib/pq v1.12.3
 )
 
 require (
@@ -17,5 +21,5 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.51.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
 )
