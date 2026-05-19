@@ -1,42 +1,78 @@
 # API Endpoints Documentation
 
-This document outlines the available REST API endpoints for the merch backend. All endpoints are prefixed with the current API version (e.g., `/api/v1`).
+This document outlines the API surface for the `merch` backend. All endpoints are versioned with `/api/v1`.
 
 ---
 
-## System
+## 1. System
 
 ### Health Check
+Check the API server status.
 
-Verifies that the API server is running and responding to requests.
+- **URL:** `/api/v1/health`
+- **Method:** `GET`
+- **Auth:** None
 
-*   **URL:** `/api/v1/health`
-*   **Method:** `GET`
-*   **Authentication Required:** No
-
-#### Success Response
-
-*   **Code:** `200 OK`
-*   **Content-Type:** `application/json`
-*   **Body:**
-
+**Response:**
 ```json
 {
-  "service": "merch API",
   "status": "healthy",
+  "service": "merch API",
   "version": "v1"
 }
 ```
 
-#### Error Responses
+---
 
-*   **Code:** `404 Not Found` (If accessing an undefined route like `/api/v1/invalid`)
-*   **Body:**
+## 2. Authentication
 
+### User Registration
+Register a new user account.
+
+- **URL:** `/api/v1/auth/register`
+- **Method:** `POST`
+- **Auth:** None
+
+**Body:**
 ```json
 {
-  "error": "Route not found"
+  "email": "user@example.com",
+  "password": "securepassword",
+  "full_name": "John Doe",
+  "phone_number": "+254700000000"
 }
 ```
 
-*Note: This document will be updated as Phase 2 (Identity & Authentication) and Phase 3 (Wallets & Campaigns) are implemented.*
+**Response (201 Created):**
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "user@example.com",
+  "full_name": "John Doe",
+  "phone_number": "+254700000000",
+  "role": "customer",
+  "created_at": "2026-05-19T..."
+}
+```
+
+### User Login
+Authenticate a user and return a JWT token.
+
+- **URL:** `/api/v1/auth/login`
+- **Method:** `POST`
+- **Auth:** None
+
+**Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "securepassword"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```

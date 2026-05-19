@@ -54,9 +54,13 @@ func RequestLogger() fiber.Handler {
 		}
 
 		if status >= 400 {
+			errStr := ""
+			if err != nil {
+				errStr = err.Error()
+			}
 			reqLogger.Warn("Client Error", 
 				slog.Int("status", status),
-				slog.String("error", err.Error()),
+				slog.String("error", errStr),
 				slog.String("duration", duration.String()),
 			)
 			return err
