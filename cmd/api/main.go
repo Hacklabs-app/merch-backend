@@ -8,6 +8,7 @@ import (
 	"github.com/Hacklabs-app/merch-backend/internal/handler"
 	"github.com/Hacklabs-app/merch-backend/internal/middleware"
 	"github.com/Hacklabs-app/merch-backend/internal/repository/postgres"
+	"github.com/Hacklabs-app/merch-backend/internal/service"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -54,6 +55,14 @@ func main() {
 
 	v1 := app.Group("/api/v1")
 	v1.Get("/health", handler.HealthHandler)
+
+	userRepo := postgres.NewUserRepository(db)
+	userSvc := service.NewAuthService(userRepo)
+	authHandler := handler.NewAuthHandler(userSvc)
+
+	auth := v1.Group("/auth")
+	auth.Post("/register", authHandler.Register)
+	auth.Post("/login", authHandler.Login)
 
 	app.Use(func(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, "Route not found")
