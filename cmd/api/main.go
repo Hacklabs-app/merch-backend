@@ -29,7 +29,6 @@ func main() {
 		os.Exit(1)
 	}
 	defer db.Close()
-	logger.Info("Successfully connected to the database")
 
 	if cfg.Environment == "development" {
 		err = postgres.RunMigrations(db, "migrations")
@@ -37,7 +36,6 @@ func main() {
 			logger.Error("Database migration failed", slog.String("error", err.Error()))
 			os.Exit(1)
 		}
-		logger.Info("Database migrations applied successfully")
 	}
 
 	app := fiber.New(fiber.Config{
@@ -60,8 +58,6 @@ func main() {
 	app.Use(func(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, "Route not found")
 	})
-
-	logger.Info("merch API starting", slog.String("port", cfg.Port))
 
 	err = app.Listen(":" + cfg.Port)
 	if err != nil {
