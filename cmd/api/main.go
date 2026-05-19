@@ -31,6 +31,16 @@ func main() {
 	defer db.Close()
 	logger.Info("Successfully connected to the database")
 
+	// Auto-run migrations in development only
+	if cfg.Environment == "development" {
+		err = postgres.RunMigrations(db, "migrations")
+		if err != nil {
+			logger.Error("Database migration failed", slog.String("error", err.Error()))
+			os.Exit(1)
+		}
+		logger.Info("Database migrations applied successfully")
+	}
+
 	app := fiber.New(fiber.Config{
 		AppName:               "merch API",
 		DisableStartupMessage: true,
@@ -47,6 +57,11 @@ func main() {
 
 	v1 := app.Group("/api/v1")
 	v1.Get("/health", handler.HealthHandler)
+
+	// TODO: Remove this temporary route after testing 5xx logs
+	v1.Get("/crash", func(c *fiber.Ctx) error {
+		return fiber.NewError(fiber.StatusInternalServerError, "Simulated database connection timeout")
+	})
 
 	// Explicit 404 handler so Fiber correctly propagates the error status
 	app.Use(func(c *fiber.Ctx) error {

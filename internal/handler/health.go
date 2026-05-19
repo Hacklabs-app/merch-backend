@@ -8,7 +8,7 @@ import (
 
 func HealthHandler(c *fiber.Ctx) error {
 	logger := c.Locals("logger").(*slog.Logger)
-	
+
 	logger.Info("Executing health check")
 
 	return c.JSON(fiber.Map{

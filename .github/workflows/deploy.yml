@@ -23,6 +23,12 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
+      - name: Run Database Migrations
+        run: |
+          curl -L https://github.com/golang-migrate/migrate/releases/download/v4.16.2/migrate.linux-amd64.tar.gz | tar xvz
+          sudo mv migrate /usr/local/bin/
+          migrate -path ./migrations -database "${{ secrets.DATABASE_URL }}" up
+
       - name: Docker Auth
         run: gcloud auth configure-docker gcr.io --quiet
 

@@ -13,7 +13,7 @@ func RequestLogger() fiber.Handler {
 		if requestID == "" {
 			requestID = uuid.New().String()
 		}
-		
+
 		c.Set("X-Request-ID", requestID)
 
 		reqLogger := slog.With(
@@ -40,8 +40,8 @@ func RequestLogger() fiber.Handler {
 			if err != nil {
 				msg = err.Error()
 			}
-			
-			reqLogger.Error(msg, 
+
+			reqLogger.Error(msg,
 				slog.Int("status", status),
 			)
 			return err
@@ -49,14 +49,14 @@ func RequestLogger() fiber.Handler {
 
 		// 404s and 400s are client errors, they shouldn't trigger PagerDuty alerts, so we log them as Warnings or Info
 		if status >= 400 {
-			reqLogger.Warn("Client Error", 
+			reqLogger.Warn("Client Error",
 				slog.Int("status", status),
 				slog.String("error", err.Error()),
 			)
 			return err
 		}
 
-		reqLogger.Info("Request completed", 
+		reqLogger.Info("Request completed",
 			slog.Int("status", status),
 		)
 

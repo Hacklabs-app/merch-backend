@@ -9,10 +9,11 @@ type Config struct {
 	Port        string `env:"PORT" envDefault:"8080"`
 	DatabaseURL string `env:"DATABASE_URL,required"`
 	JWTSecret   string `env:"JWT_SECRET,required"`
+	Environment string `env:"ENVIRONMENT" envDefault:"development"`
 }
 
 func LoadConfig() (*Config, error) {
-	_ = godotenv.Load() 
+	_ = godotenv.Load()
 
 	var cfg Config
 	if err := env.Parse(&cfg); err != nil {
