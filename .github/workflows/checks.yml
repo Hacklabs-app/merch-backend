@@ -24,5 +24,15 @@ jobs:
       - name: Install dependencies
         run: go mod download
 
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.63.4
+
+      - name: Run gosec (Security Scanner)
+        uses: securego/gosec@master
+        with:
+          args: ./...
+
       - name: Run Tests
         run: go test -v ./...
