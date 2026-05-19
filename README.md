@@ -76,6 +76,25 @@ go run cmd/api/main.go
 curl http://localhost:8080/api/v1/health
 ```
 
+## 🧪 Testing & Linting
+
+We maintain a high standard of code quality. Before submitting a Pull Request, ensure your code passes all checks.
+
+### Run Tests
+```bash
+go test -v ./...
+```
+
+### Run Security Scanner (gosec)
+Ensure no hardcoded secrets or SQL injection vulnerabilities exist:
+```bash
+# Install gosec if you haven't
+go install github.com/securego/gosec/v2/cmd/gosec@latest
+
+# Run the scanner
+gosec ./...
+```
+
 ## 🔐 CI/CD & Deployments
 
 Deployments to Google Cloud Run are handled automatically via GitHub Actions upon merging to the `main` branch. 
