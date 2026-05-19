@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"log/slog"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -30,9 +31,9 @@ func RequestLogger() fiber.Handler {
 
 		c.Locals("logger", reqLogger)
 
-		reqLogger.Info("Incoming request")
-
+		start := time.Now()
 		err := c.Next()
+		duration := time.Since(start)
 
 		status := c.Response().StatusCode()
 		if e, ok := err.(*fiber.Error); ok {
@@ -47,6 +48,7 @@ func RequestLogger() fiber.Handler {
 			
 			reqLogger.Error(msg, 
 				slog.Int("status", status),
+				slog.String("duration", duration.String()),
 			)
 			return err
 		}
@@ -55,12 +57,14 @@ func RequestLogger() fiber.Handler {
 			reqLogger.Warn("Client Error", 
 				slog.Int("status", status),
 				slog.String("error", err.Error()),
+				slog.String("duration", duration.String()),
 			)
 			return err
 		}
 
 		reqLogger.Info("Request completed", 
 			slog.Int("status", status),
+			slog.String("duration", duration.String()),
 		)
 
 		return nil
