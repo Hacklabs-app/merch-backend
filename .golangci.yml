@@ -1,0 +1,2 @@
+run:
+  go: '1.23' # Tells golangci-lint to run using its supported version parsing, avoiding the 1.24 mismatch error.
