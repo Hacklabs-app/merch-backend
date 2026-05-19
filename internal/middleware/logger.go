@@ -16,11 +16,16 @@ func RequestLogger() fiber.Handler {
 		
 		c.Set("X-Request-ID", requestID)
 
+		clientIP := c.Get("X-Forwarded-For")
+		if clientIP == "" {
+			clientIP = c.IP()
+		}
+
 		reqLogger := slog.With(
 			slog.String("request_id", requestID),
 			slog.String("method", c.Method()),
 			slog.String("path", c.Path()),
-			slog.String("ip", c.IP()),
+			slog.String("ip", clientIP),
 		)
 
 		c.Locals("logger", reqLogger)

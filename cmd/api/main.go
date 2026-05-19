@@ -57,6 +57,10 @@ func main() {
 	v1 := app.Group("/api/v1")
 	v1.Get("/health", handler.HealthHandler)
 
+	v1.Get("/crash", func(c *fiber.Ctx) error {
+		return fiber.NewError(fiber.StatusInternalServerError, "simulated server crash for alerting test")
+	})
+
 	app.Use(func(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, "Route not found")
 	})
